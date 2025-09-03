@@ -1,10 +1,10 @@
 export const CategoryMap: Record<string, string[]> = {
     hotels: [
         'accommodation.hotel',
-        'accommodaton.hostels',
+        'accommodation.hostel',
         'accommodation.guest_house',
-        'accommodaton.motel',
-        'accommodaton.apartment'
+        'accommodation.motel',
+        'accommodation.apartment'
     ],
 
     restaurants: ['catering.restaurant', 'catering.cafe', 'catering.fast_food'],

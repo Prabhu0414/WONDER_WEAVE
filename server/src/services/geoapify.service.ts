@@ -3,7 +3,6 @@ import { LRUCache } from "lru-cache";
 import qs from 'qs';
 import { CategoryMap, getCuisinesFromFeatures } from "../utils/geoapify";
 import type { LatLng } from "../types/discovery";
-import { isModuleNamespaceObject } from "util/types";
 
 
 const GEOCODE_URL = 'https://api.geoapify.com/v1/geocode/search';
@@ -23,7 +22,7 @@ interface Feature {
 }
 
 function withKey(params: Record<string, any>) {
-    return { apikey: process.env.GEOAPIFY_API_KEY, ...params};
+    return { apiKey: process.env.GEOAPIFY_API_KEY, ...params};
 }
 
 export async function geocode(place:string): Promise<LatLng | null> {
