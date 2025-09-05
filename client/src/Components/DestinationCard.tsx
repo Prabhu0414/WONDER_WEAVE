@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { motion } from "framer-motion";
 import { MapPin, Star } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "./ui/button";
 
 export interface Destination {
   title: string;
