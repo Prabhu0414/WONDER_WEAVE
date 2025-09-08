@@ -4,6 +4,7 @@ import { Sparkles, ChevronRight, Mountain, Calendar, Globe2 } from "lucide-react
 import { GradientButton } from "./ui/gradient-button";
 import { Button } from "./Button";
 import HeroStat from "./HeroStat";
+import { Link } from "react-router-dom";
 
 export function HeroBanner () {
     return (
@@ -59,7 +60,9 @@ export function HeroBanner () {
               className="mt-8 flex flex-col sm:flex-row gap-4"
             >
               <GradientButton>
+                <Link to="/AuthPage">
                 Plan Your Trip
+                </Link>
                 <ChevronRight className="ml-2 h-4 w-4" />
               </GradientButton>
               <Button

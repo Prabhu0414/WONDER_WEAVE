@@ -37,7 +37,7 @@ export function Footer () {
               <h3 className="font-bold text-lg mb-4">Quick Links</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link to="#" className="text-slate-400 hover:text-orange-400 transition-colors">
+                  <Link to="/" className="text-slate-400 hover:text-orange-400 transition-colors">
                     Home
                   </Link>
                 </li>
@@ -98,15 +98,15 @@ export function Footer () {
             <div>
               <h3 className="font-bold text-lg mb-4">Contact Us</h3>
               <address className="not-italic text-slate-400">
-                <p>123 Travel Street</p>
-                <p>New Delhi, India</p>
-                <p className="mt-2">info@wonderweave.com</p>
-                <p>+91 1234567890</p>
+                <p>Indore</p>
+                <p>Madhya Pradesh, India</p>
+                <p className="mt-2">tanmayyadav1410@gmail.com</p>
+                <p>+91 6267931593</p>
               </address>
             </div>
           </div>
 
-          <div className="border-t border-slate-800 mt-8 pt-8 text-center text-slate-400 text-sm">
+          <div className=" border-t border-slate-800 mt-8 pt-8 text-center text-slate-400 text-sm">
             <p>&copy; {new Date().getFullYear()} Wonder Weave. All rights reserved.</p>
           </div>
         </div>

@@ -46,7 +46,7 @@ export function Login({ onSwitchToSignUp }: LoginProps) {
               onClick={onSwitchToSignUp}
               className="text-blue-600 cursor-pointer hover:underline"
             >
-              Login
+              Signup
             </button>
           </p>
          </div>

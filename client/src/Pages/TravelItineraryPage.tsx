@@ -1,0 +1,812 @@
+"use client";
+
+import React, { useState, useRef } from "react";
+import { ItemCard } from "../Components/ItemCard";
+import { ItineraryCard } from "../Components/ItineraryCard";
+import { Star, Plane, Hotel, UtensilsCrossed, MapPin, Clock, X, Heart, Save, Calendar, Users, DollarSign, CheckCircle, Coffee, Plus, Download, Share2 } from "lucide-react";
+
+// Dummy replacements for shadcn/ui components
+const Button = (props: any) => <button {...props} />;
+const Card = (props: any) => <div {...props} className={`rounded-lg border bg-white shadow ${props.className || ''}`}>{props.children}</div>;
+const CardHeader = (props: any) => <div {...props} className={`p-4 border-b bg-gray-50 ${props.className || ''}`}>{props.children}</div>;
+const CardTitle = (props: any) => <div {...props} className={`font-bold text-lg ${props.className || ''}`}>{props.children}</div>;
+const CardContent = (props: any) => <div {...props} className={`p-4 ${props.className || ''}`}>{props.children}</div>;
+const Badge = (props: any) => <span {...props} className={`inline-block rounded px-2 py-1 text-xs font-semibold ${props.className || ''}`}>{props.children}</span>;
+const Input = (props: any) => <input {...props} className={`border rounded px-2 py-1 ${props.className || ''}`} />;
+const Select = (props: any) => <select {...props} className={`border rounded px-2 py-1 ${props.className || ''}`}>{props.children}</select>;
+const SelectItem = (props: any) => <option {...props}>{props.children}</option>;
+const Dialog = (props: any) => <div {...props}>{props.children}</div>;
+const DialogContent = (props: any) => <div {...props}>{props.children}</div>;
+const DialogHeader = (props: any) => <div {...props}>{props.children}</div>;
+const DialogTitle = (props: any) => <div {...props}>{props.children}</div>;
+const DialogDescription = (props: any) => <div {...props}>{props.children}</div>;
+
+
+
+// --- All logic and UI from test.tsx below ---
+
+// ...existing ItineraryItem interface and mock data from test.tsx...
+
+interface ItineraryItem {
+  id: string;
+  type: "flight" | "hotel" | "restaurant" | "attraction" | "rest";
+  title: string;
+  description: string;
+  time?: string;
+  price?: string;
+  rating?: number;
+  image: string;
+  day?: number;
+  duration?: string;
+  category?: string;
+  cuisine?: string;
+  isCompleted?: boolean;
+  attractionCategory?: string;
+}
+
+const flightResults: ItineraryItem[] = [
+  {
+    id: "flight-1",
+    type: "flight",
+    title: "JAL Direct Flight",
+    description: "Japan Airlines • 13h 45m • Premium Economy",
+    price: "$1,450",
+    rating: 4.7,
+    image: "/airplane-sky-clouds.jpg",
+    category: "International",
+  },
+  {
+    id: "flight-2",
+    type: "flight",
+    title: "ANA Connecting Flight",
+    description: "All Nippon Airways • 16h 20m • 1 stop",
+    price: "$980",
+    rating: 4.5,
+    image: "/airplane-sky-clouds.jpg",
+    category: "Budget",
+  },
+];
+
+const hotelResults: ItineraryItem[] = [
+  {
+    id: "hotel-1",
+    type: "hotel",
+    title: "The Ritz-Carlton Tokyo",
+    description: "Ultra-luxury hotel in Roppongi with Tokyo Tower views",
+    price: "$650/night",
+    rating: 4.9,
+    image: "/luxury-hotel-tokyo-night.jpg",
+    category: "Luxury",
+  },
+  {
+    id: "hotel-2",
+    type: "hotel",
+    title: "Shibuya Sky Hotel",
+    description: "Modern boutique hotel in the heart of Shibuya",
+    price: "$280/night",
+    rating: 4.4,
+    image: "/luxury-hotel-tokyo-night.jpg",
+    category: "Boutique",
+  },
+];
+
+const restaurantResults: ItineraryItem[] = [
+  {
+    id: "restaurant-1",
+    type: "restaurant",
+    title: "Narisawa",
+    description: "Michelin 2-star innovative Japanese cuisine",
+    price: "$400",
+    rating: 4.8,
+    image: "/sushi-restaurant-japan.jpg",
+    category: "Fine Dining",
+    cuisine: "Japanese",
+  },
+  {
+    id: "restaurant-2",
+    type: "restaurant",
+    title: "Tsuta Ramen",
+    description: "World's first Michelin-starred ramen shop",
+    price: "$12",
+    rating: 4.6,
+    image: "/ramen-bowl-japanese-restaurant.jpg",
+    category: "Local",
+    cuisine: "Japanese",
+  },
+  {
+    id: "restaurant-3",
+    type: "restaurant",
+    title: "L'Atelier de Joël Robuchon",
+    description: "French fine dining with Tokyo flair",
+    price: "$350",
+    rating: 4.7,
+    image: "/sushi-restaurant-japan.jpg",
+    category: "Fine Dining",
+    cuisine: "French",
+  },
+  {
+    id: "restaurant-4",
+    type: "restaurant",
+    title: "Pizzeria Bianco Tokyo",
+    description: "Authentic Neapolitan pizza in Shibuya",
+    price: "$25",
+    rating: 4.3,
+    image: "/ramen-bowl-japanese-restaurant.jpg",
+    category: "Casual",
+    cuisine: "Italian",
+  },
+  {
+    id: "restaurant-5",
+    type: "restaurant",
+    title: "Din Tai Fung",
+    description: "Famous xiaolongbao and Taiwanese cuisine",
+    price: "$30",
+    rating: 4.5,
+    image: "/sushi-restaurant-japan.jpg",
+    category: "Casual",
+    cuisine: "Chinese",
+  },
+  {
+    id: "restaurant-6",
+    type: "restaurant",
+    title: "Gaggan Tokyo",
+    description: "Progressive Indian cuisine with molecular gastronomy",
+    price: "$280",
+    rating: 4.6,
+    image: "/ramen-bowl-japanese-restaurant.jpg",
+    category: "Fine Dining",
+    cuisine: "Indian",
+  },
+];
+
+const attractionResults: ItineraryItem[] = [
+  {
+    id: "attraction-1",
+    type: "attraction",
+    title: "TeamLab Borderless",
+    description: "Digital art museum with immersive installations",
+    price: "$35",
+    rating: 4.8,
+    duration: "3-4 hours",
+    image: "/senso-ji-temple-tokyo.jpg",
+    category: "Museum",
+    attractionCategory: "museum",
+  },
+  {
+    id: "attraction-2",
+    type: "attraction",
+    title: "Meiji Shrine",
+    description: "Peaceful Shinto shrine surrounded by forest",
+    price: "Free",
+    rating: 4.5,
+    duration: "1-2 hours",
+    image: "/senso-ji-temple-tokyo.jpg",
+    category: "Temple",
+    attractionCategory: "temple",
+  },
+  {
+    id: "attraction-3",
+    type: "attraction",
+    title: "Ueno Zoo",
+    description: "Japan's oldest zoo featuring giant pandas",
+    price: "$6",
+    rating: 4.2,
+    duration: "2-3 hours",
+    image: "/senso-ji-temple-tokyo.jpg",
+    category: "Zoo",
+    attractionCategory: "zoo",
+  },
+  {
+    id: "attraction-4",
+    type: "attraction",
+    title: "Tokyo National Museum",
+    description: "Largest collection of Japanese cultural artifacts",
+    price: "$10",
+    rating: 4.4,
+    duration: "2-3 hours",
+    image: "/senso-ji-temple-tokyo.jpg",
+    category: "Museum",
+    attractionCategory: "museum",
+  },
+  {
+    id: "attraction-5",
+    type: "attraction",
+    title: "Senso-ji Temple",
+    description: "Ancient Buddhist temple in Asakusa district",
+    price: "Free",
+    rating: 4.7,
+    duration: "1-2 hours",
+    image: "/senso-ji-temple-tokyo.jpg",
+    category: "Temple",
+    attractionCategory: "temple",
+  },
+  {
+    id: "attraction-6",
+    type: "attraction",
+    title: "Tokyo Skytree",
+    description: "World's second tallest structure with panoramic views",
+    price: "$25",
+    rating: 4.6,
+    duration: "2 hours",
+    image: "/tokyo-skytree-sunset.jpg",
+    category: "Landmark",
+    attractionCategory: "landmark",
+  },
+];
+
+const initialItinerary: ItineraryItem[] = [
+  {
+    id: "3",
+    type: "restaurant",
+    title: "Sukiyabashi Jiro",
+    description: "World-famous sushi restaurant",
+    price: "$300",
+    rating: 4.9,
+    day: 1,
+    time: "7:00 PM",
+    duration: "2 hours",
+    image: "/sushi-restaurant-japan.jpg",
+  },
+  {
+    id: "4",
+    type: "attraction",
+    title: "Senso-ji Temple",
+    description: "Ancient Buddhist temple in Asakusa",
+    rating: 4.7,
+    day: 1,
+    time: "10:00 AM",
+    duration: "2 hours",
+    image: "/senso-ji-temple-tokyo.jpg",
+  },
+];
+
+
+export default function TravelItineraryPage() {
+  // --- All state and logic from test.tsx ---
+  // Copied from test.tsx TravelItinerary function
+  const [selectedDay, setSelectedDay] = useState(1);
+  const [itineraryItems, setItineraryItems] = useState(initialItinerary);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  // Removed unused selectedCategory state
+  const [selectedCuisine, setSelectedCuisine] = useState("all");
+  const [selectedAttractionCategory, setSelectedAttractionCategory] = useState("all");
+  const [draggedItem, setDraggedItem] = useState<ItineraryItem | null>(null);
+  const [selectedFlight, setSelectedFlight] = useState<ItineraryItem | null>(null);
+  const [selectedHotel, setSelectedHotel] = useState<ItineraryItem | null>(null);
+  const dragCounter = useRef(0);
+  const [showMoreRestaurants, setShowMoreRestaurants] = useState(false);
+  const [showMoreAttractions, setShowMoreAttractions] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showItemSelector, setShowItemSelector] = useState(false);
+  const [selectorSearchQuery, setSelectorSearchQuery] = useState("");
+  const [selectorCuisine, setSelectorCuisine] = useState("all");
+  const [selectorAttractionCategory, setSelectorAttractionCategory] = useState("all");
+
+  const toggleFavorite = (id: string) => {
+    setFavorites((prev) => (prev.includes(id) ? prev.filter((fav) => fav !== id) : [...prev, id]));
+  };
+
+  const removeFromItinerary = (id: string) => {
+    setItineraryItems((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const toggleCompleted = (id: string) => {
+    setItineraryItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, isCompleted: !item.isCompleted } : item)),
+    );
+  };
+
+  const handleDragStart = (e: React.DragEvent, item: ItineraryItem) => {
+    if (item.type === "restaurant" || item.type === "attraction") {
+      setDraggedItem(item);
+      e.dataTransfer.effectAllowed = "copy";
+      e.dataTransfer.setData("text/plain", item.id);
+    } else {
+      e.preventDefault();
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDraggedItem(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    dragCounter.current++;
+  };
+
+  const handleDragLeave = () => {
+    dragCounter.current--;
+  };
+
+  const handleDrop = (e: React.DragEvent, day: number) => {
+    e.preventDefault();
+    dragCounter.current = 0;
+
+    if (draggedItem && (draggedItem.type === "restaurant" || draggedItem.type === "attraction")) {
+      const newItem: ItineraryItem = {
+        ...draggedItem,
+        id: `${draggedItem.id}-${Date.now()}`,
+        day: day,
+        time: "12:00 PM",
+      };
+      setItineraryItems((prev) => [...prev, newItem]);
+      setDraggedItem(null);
+      setShowMoreRestaurants(false);
+      setShowMoreAttractions(false);
+    }
+  };
+
+  const filteredRestaurants = restaurantResults.filter((item) => {
+    const matchesSearch =
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCuisine = selectedCuisine === "all" || item.cuisine?.toLowerCase() === selectedCuisine;
+    return matchesSearch && matchesCuisine;
+  });
+
+  const filteredAttractions = attractionResults.filter((item) => {
+    const matchesSearch =
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      selectedAttractionCategory === "all" || item.category?.toLowerCase() === selectedAttractionCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const dayItems = itineraryItems.filter((item) => item.day === selectedDay);
+  const completedCount = dayItems.filter((item) => item.isCompleted).length;
+  const totalCount = dayItems.length;
+
+  const addRestDay = (day: number) => {
+    const restItem: ItineraryItem = {
+      id: `rest-${Date.now()}`,
+      type: "rest",
+      title: "Rest Day",
+      description: "Take a break and relax",
+      day: day,
+      time: "All Day",
+      image: "/diverse-travel-destinations.png",
+    };
+    setItineraryItems((prev) => [...prev, restItem]);
+  };
+
+  const addItemToItinerary = (item: ItineraryItem) => {
+    const newItem: ItineraryItem = {
+      ...item,
+      id: `${item.id}-${Date.now()}`,
+      day: selectedDay,
+      time: "12:00 PM",
+    };
+    setItineraryItems((prev) => [...prev, newItem]);
+    setShowItemSelector(false);
+  };
+
+  const mockRestaurants = restaurantResults;
+  const mockAttractions = attractionResults;
+
+  const selectorFilteredItems = [...mockRestaurants, ...mockAttractions].filter((item) => {
+    const matchesSearch =
+      item.title.toLowerCase().includes(selectorSearchQuery.toLowerCase()) ||
+      item.description.toLowerCase().includes(selectorSearchQuery.toLowerCase());
+    const matchesCuisine = selectorCuisine === "all" || item.cuisine === selectorCuisine;
+    const matchesAttractionCategory =
+      selectorAttractionCategory === "all" || item.attractionCategory === selectorAttractionCategory;
+
+    return matchesSearch && matchesCuisine && matchesAttractionCategory;
+  });
+
+  // --- Full JSX from test.tsx ---
+  return (
+    <>
+      {/* --- Begin full JSX from test.tsx TravelItinerary return --- */}
+      <div className="min-h-screen bg-background">
+        <div className="relative h-96 bg-gradient-to-br from-pink-500 via-rose-400 to-fuchsia-500 overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center opacity-20"
+            style={{
+              backgroundImage: "url('/tokyo-skyline-cherry-blossoms-sunset.jpg')",
+            }}
+          />
+          <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
+            <div className="text-white max-w-2xl">
+              <h1 className="text-5xl font-bold mb-4 text-balance">Tokyo Cherry Blossom Journey</h1>
+              <p className="text-xl mb-6 text-pink-50 text-pretty">
+                Your personalized 7-day adventure through Japan's enchanting capital
+              </p>
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  <span>March 15-22, 2024</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  <span>2 Travelers</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-4 w-4" />
+                  <span>$3,200 Total</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* --- The rest of the JSX is identical to the TravelItinerary return in test.tsx --- */}
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {/* Flight Selection */}
+            <Card className="border-pink-200 shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-pink-50 to-rose-50">
+                <CardTitle className="flex items-center gap-2">
+                  <Plane className="h-6 w-6 text-pink-500" />
+                  <span className="text-xl text-pink-900">Select Your Flight</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="space-y-3">
+                  {flightResults.map((flight) => (
+                    <div
+                      key={flight.id}
+                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                        selectedFlight?.id === flight.id
+                          ? "border-pink-500 bg-pink-50"
+                          : "border-pink-200 hover:border-pink-300 bg-white"
+                      }`}
+                      onClick={() => setSelectedFlight(flight)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-pink-900">{flight.title}</h4>
+                          <p className="text-sm text-pink-700">{flight.description}</p>
+                          <div className="flex items-center gap-4 mt-2">
+                            <span className="font-bold text-pink-600">{flight.price}</span>
+                            <div className="flex items-center gap-1">
+                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                              <span className="text-sm text-pink-800 font-medium">{flight.rating}</span>
+                            </div>
+                          </div>
+                        </div>
+                        {selectedFlight?.id === flight.id && <CheckCircle className="h-6 w-6 text-pink-500" />}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Hotel Selection */}
+            <Card className="border-pink-200 shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-pink-50 to-rose-50">
+                <CardTitle className="flex items-center gap-2">
+                  <Hotel className="h-6 w-6 text-pink-500" />
+                  <span className="text-xl text-pink-900">Select Your Hotel</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="space-y-3">
+                  {hotelResults.map((hotel) => (
+                    <div
+                      key={hotel.id}
+                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                        selectedHotel?.id === hotel.id
+                          ? "border-pink-500 bg-pink-50"
+                          : "border-pink-200 hover:border-pink-300 bg-white"
+                      }`}
+                      onClick={() => setSelectedHotel(hotel)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-pink-900">{hotel.title}</h4>
+                          <p className="text-sm text-pink-700">{hotel.description}</p>
+                          <div className="flex items-center gap-4 mt-2">
+                            <span className="font-bold text-pink-600">{hotel.price}</span>
+                            <div className="flex items-center gap-1">
+                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                              <span className="text-sm text-pink-800 font-medium">{hotel.rating}</span>
+                            </div>
+                          </div>
+                        </div>
+                        {selectedHotel?.id === hotel.id && <CheckCircle className="h-6 w-6 text-pink-500" />}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          {/* Restaurants & Attractions Selection */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {/* Restaurants */}
+            <Card className="border-pink-200 shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-pink-50 to-rose-50 flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <UtensilsCrossed className="h-6 w-6 text-pink-500" />
+                  <span className="text-xl text-pink-900">Top Restaurants</span>
+                </CardTitle>
+                <Button
+                  className="text-pink-600 hover:underline text-sm"
+                  onClick={() => setShowMoreRestaurants((v) => !v)}
+                >
+                  {showMoreRestaurants ? "Show Less" : "Show More"}
+                </Button>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <Input
+                    placeholder="Search restaurants..."
+                    value={searchQuery}
+                    onChange={(e: any) => setSearchQuery(e.target.value)}
+                    className="w-40"
+                  />
+                  <Select
+                    value={selectedCuisine}
+                    onChange={(e: any) => setSelectedCuisine(e.target.value)}
+                  >
+                    <SelectItem value="all">All Cuisines</SelectItem>
+                    <SelectItem value="japanese">Japanese</SelectItem>
+                    <SelectItem value="french">French</SelectItem>
+                    <SelectItem value="italian">Italian</SelectItem>
+                    <SelectItem value="chinese">Chinese</SelectItem>
+                    <SelectItem value="indian">Indian</SelectItem>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-1 gap-3">
+                  {(showMoreRestaurants ? filteredRestaurants : filteredRestaurants.slice(0, 3)).map((item) => (
+                    <ItemCard
+                      key={item.id}
+                      item={item}
+                      onDragStart={handleDragStart}
+                      onDragEnd={handleDragEnd}
+                    >
+                      <button
+                        className={`ml-2 text-pink-400 hover:text-pink-600 transition-colors`}
+                        onClick={() => toggleFavorite(item.id)}
+                      >
+                        {favorites.includes(item.id) ? <Heart className="h-4 w-4 fill-red-500 text-red-500" /> : <Heart className="h-4 w-4" />}
+                      </button>
+                    </ItemCard>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Attractions */}
+            <Card className="border-pink-200 shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-pink-50 to-rose-50 flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-6 w-6 text-pink-500" />
+                  <span className="text-xl text-pink-900">Top Attractions</span>
+                </CardTitle>
+                <Button
+                  className="text-pink-600 hover:underline text-sm"
+                  onClick={() => setShowMoreAttractions((v) => !v)}
+                >
+                  {showMoreAttractions ? "Show Less" : "Show More"}
+                </Button>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <Input
+                    placeholder="Search attractions..."
+                    value={searchQuery}
+                    onChange={(e: any) => setSearchQuery(e.target.value)}
+                    className="w-40"
+                  />
+                  <Select
+                    value={selectedAttractionCategory}
+                    onChange={(e: any) => setSelectedAttractionCategory(e.target.value)}
+                  >
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="museum">Museum</SelectItem>
+                    <SelectItem value="temple">Temple</SelectItem>
+                    <SelectItem value="zoo">Zoo</SelectItem>
+                    <SelectItem value="landmark">Landmark</SelectItem>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-1 gap-3">
+                  {(showMoreAttractions ? filteredAttractions : filteredAttractions.slice(0, 3)).map((item) => (
+                    <ItemCard
+                      key={item.id}
+                      item={item}
+                      onDragStart={handleDragStart}
+                      onDragEnd={handleDragEnd}
+                    >
+                      <button
+                        className={`ml-2 text-pink-400 hover:text-pink-600 transition-colors`}
+                        onClick={() => toggleFavorite(item.id)}
+                      >
+                        {favorites.includes(item.id) ? <Heart className="h-4 w-4 fill-red-500 text-red-500" /> : <Heart className="h-4 w-4" />}
+                      </button>
+                    </ItemCard>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Timeline & Itinerary */}
+          <div className="bg-white rounded-lg shadow-lg border border-pink-200 p-6 mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Clock className="h-6 w-6 text-pink-500" />
+                <span className="text-xl font-bold text-pink-900">Day {selectedDay} Itinerary</span>
+                <Badge className="bg-pink-100 text-pink-700 ml-2">
+                  {completedCount}/{totalCount} Completed
+                </Badge>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  className="bg-pink-500 text-white px-3 py-1 rounded hover:bg-pink-600"
+                  onClick={() => addRestDay(selectedDay)}
+                >
+                  <Coffee className="h-4 w-4 mr-1 inline" /> Add Rest Day
+                </Button>
+                <Button
+                  className="bg-pink-100 text-pink-700 px-3 py-1 rounded hover:bg-pink-200"
+                  onClick={() => setShowItemSelector(true)}
+                >
+                  <Plus className="h-4 w-4 mr-1 inline" /> Add Item
+                </Button>
+                <Button
+                  className="bg-pink-100 text-pink-700 px-3 py-1 rounded hover:bg-pink-200"
+                  onClick={() => setShowSaveDialog(true)}
+                >
+                  <Save className="h-4 w-4 mr-1 inline" /> Save
+                </Button>
+              </div>
+            </div>
+            <div
+              className="min-h-[120px]"
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, selectedDay)}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+            >
+              {dayItems.length === 0 ? (
+                <div className="text-pink-400 text-center py-8">Drag items here to build your day!</div>
+              ) : (
+                <div className="space-y-3">
+                  {dayItems.map((item, idx) => (
+                    <ItineraryCard
+                      key={item.id}
+                      item={item}
+                      index={idx}
+                      favorites={favorites}
+                      onToggleCompleted={toggleCompleted}
+                      onToggleFavorite={toggleFavorite}
+                      onRemove={removeFromItinerary}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Day Selector */}
+          <div className="flex justify-center gap-2 mb-8">
+            {[1, 2, 3, 4, 5, 6, 7].map((day) => (
+              <Button
+                key={day}
+                className={`rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg border-2 transition-all duration-200 ${
+                  selectedDay === day
+                    ? "bg-pink-500 text-white border-pink-500"
+                    : "bg-white text-pink-700 border-pink-200 hover:bg-pink-50"
+                }`}
+                onClick={() => setSelectedDay(day)}
+              >
+                {day}
+              </Button>
+            ))}
+          </div>
+
+          {/* Save Dialog */}
+          {showSaveDialog && (
+            <Dialog>
+              <DialogContent className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Save className="h-5 w-5 text-pink-500" /> Save Itinerary
+                  </DialogTitle>
+                </DialogHeader>
+                <DialogDescription className="mb-4 text-pink-800">
+                  Download or share your personalized Tokyo itinerary.
+                </DialogDescription>
+                <div className="flex gap-4">
+                  <Button className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 flex items-center gap-2">
+                    <Download className="h-4 w-4" /> Download PDF
+                  </Button>
+                  <Button className="bg-pink-100 text-pink-700 px-4 py-2 rounded hover:bg-pink-200 flex items-center gap-2">
+                    <Share2 className="h-4 w-4" /> Share
+                  </Button>
+                  <Button className="ml-auto" onClick={() => setShowSaveDialog(false)}>
+                    <X className="h-5 w-5 text-pink-400" />
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+
+          {/* Item Selector Dialog */}
+          {showItemSelector && (
+            <Dialog>
+              <DialogContent className="max-w-lg mx-auto bg-white rounded-lg shadow-lg p-6">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Plus className="h-5 w-5 text-pink-500" /> Add Item to Day {selectedDay}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <Input
+                    placeholder="Search..."
+                    value={selectorSearchQuery}
+                    onChange={(e: any) => setSelectorSearchQuery(e.target.value)}
+                    className="w-40"
+                  />
+                  <Select
+                    value={selectorCuisine}
+                    onChange={(e: any) => setSelectorCuisine(e.target.value)}
+                  >
+                    <SelectItem value="all">All Cuisines</SelectItem>
+                    <SelectItem value="japanese">Japanese</SelectItem>
+                    <SelectItem value="french">French</SelectItem>
+                    <SelectItem value="italian">Italian</SelectItem>
+                    <SelectItem value="chinese">Chinese</SelectItem>
+                    <SelectItem value="indian">Indian</SelectItem>
+                  </Select>
+                  <Select
+                    value={selectorAttractionCategory}
+                    onChange={(e: any) => setSelectorAttractionCategory(e.target.value)}
+                  >
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="museum">Museum</SelectItem>
+                    <SelectItem value="temple">Temple</SelectItem>
+                    <SelectItem value="zoo">Zoo</SelectItem>
+                    <SelectItem value="landmark">Landmark</SelectItem>
+                  </Select>
+                </div>
+                <div className="max-h-60 overflow-y-auto space-y-2">
+                  {selectorFilteredItems.length === 0 ? (
+                    <div className="text-pink-400 text-center py-8">No items found.</div>
+                  ) : (
+                    selectorFilteredItems.map((item) => (
+                      <ItemCard
+                        key={item.id}
+                        item={item}
+                      >
+                        <button
+                          className={`ml-2 text-pink-400 hover:text-pink-600 transition-colors`}
+                          onClick={() => toggleFavorite(item.id)}
+                        >
+                          {favorites.includes(item.id) ? <Heart className="h-4 w-4 fill-red-500 text-red-500" /> : <Heart className="h-4 w-4" />}
+                        </button>
+                        <Button
+                          className="ml-2 bg-pink-500 text-white px-2 py-1 rounded hover:bg-pink-600"
+                          onClick={() => addItemToItinerary(item)}
+                        >
+                          <Plus className="h-4 w-4 inline" /> Add
+                        </Button>
+                      </ItemCard>
+                    ))
+                  )}
+                </div>
+                <div className="flex justify-end mt-4">
+                  <Button className="" onClick={() => setShowItemSelector(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
+        </div>
+      {/* --- End full JSX from test.tsx TravelItinerary return --- */}
+  </>
+  );
+}
