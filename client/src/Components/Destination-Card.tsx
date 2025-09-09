@@ -20,7 +20,7 @@ interface DestinationCardProps {
   onClick: (id: string) => void
 }
 
-export function DestinationCard({
+export function SearchDestinationCard({
   id,
   name,
   country,

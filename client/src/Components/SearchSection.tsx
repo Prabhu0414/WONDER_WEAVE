@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { discoverPlaces, searchFlights, getErrorMessage } from "../api"
-import { Search, MapPin, Calendar, Users } from "lucide-react"
+import { Search, MapPin } from "lucide-react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Card, CardContent } from "./ui/card"
@@ -13,7 +13,7 @@ export function SearchSection() {
   const [fromCity, setFromCity] = useState("")
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
-  const [guests, setGuests] = useState(1)
+ // const [guests, setGuests] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
@@ -60,7 +60,7 @@ export function SearchSection() {
           fromCity: fromCity.trim() || undefined,
           startDate: startDate || undefined,
           endDate: endDate || undefined,
-          guests,
+          //guests,
         },
       })
     } catch (err) {
@@ -93,7 +93,7 @@ export function SearchSection() {
           <CardContent className="p-6">
             <div className="flex flex-wrap gap-4 items-stretch">
               {/* Destination */}
-              <div className="flex-1 min-w-[200px] relative">
+              <div className="flex-1 min-w-[250px] relative">
                 <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-orange-400" />
                 <Input
                   placeholder="Where do you want to go?"
@@ -105,10 +105,10 @@ export function SearchSection() {
               </div>
 
               {/* From City */}
-              <div className="flex-1 min-w-[200px] relative">
+              <div className="flex-1 w-[250px] relative">
                 <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-orange-400" />
                 <Input
-                  placeholder="Where are you departing from?"
+                  placeholder="You are departing from?"
                   value={fromCity}
                   onChange={(e) => setFromCity(e.target.value)}
                   className="pl-10 h-12 text-base border-orange-200/50 focus:border-orange-400 focus:ring-orange-400/20"
@@ -117,29 +117,29 @@ export function SearchSection() {
               </div>
 
               {/* Start Date */}
-              <div className="relative flex-1 min-w-[150px]">
-                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-orange-400" />
+              <div className="relative flex-1 w-[150px]">
+                {/* <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-orange-400" /> */}
                 <input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full pl-10 pr-2 h-12 border border-orange-200/50 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-400 focus:border-orange-400"
+                  className="w-full pl-4 pr-2 h-12 border border-orange-200/50 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-400 focus:border-orange-400"
                 />
               </div>
 
               {/* End Date */}
-              <div className="relative flex-1 min-w-[150px]">
-                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-orange-400" />
+              <div className="relative flex-1 w-[150px]">
+                {/* <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-orange-400" /> */}
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full pl-10 pr-2 h-12 border border-orange-200/50 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-400 focus:border-orange-400"
+                  className="w-full pl-4 pr-2 h-12 border border-orange-200/50 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-400 focus:border-orange-400"
                 />
               </div>
 
               {/* Guests */}
-              <div className="relative flex-1 min-w-[100px]">
+              {/* <div className="relative flex-1 min-w-[100px]">
                 <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-orange-400" />
                 <input
                   type="number"
@@ -148,13 +148,13 @@ export function SearchSection() {
                   onChange={(e) => setGuests(Math.max(1, Number(e.target.value) || 1))}
                   className="w-full pl-10 pr-2 h-12 border border-orange-200/50 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-400 focus:border-orange-400"
                 />
-              </div>
+              </div> */}
 
               {/* Search Button */}
               <Button
                 onClick={handleSearch}
                 size="lg"
-                className="flex-1 min-w-[120px] bg-orange-600 hover:bg-orange-700 text-white border-0 shadow-md font-medium"
+                className="flex-1 min-w-[120px]  bg-gradient-to-r from-orange-500 to-pink-500 text-white border-0 shadow-md font-medium"
               >
                 <Search className="h-4 w-4 mr-2" />
                 {isLoading ? "Searching..." : "Search"}

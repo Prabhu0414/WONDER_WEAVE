@@ -498,6 +498,7 @@ export default function TravelItineraryPage() {
       addAttraction("12:00 PM");
       addRestaurant("1:30 PM");
       addAttraction("3:30 PM");
+      addAttraction("5:00 PM");
       addRestaurant("7:00 PM");
 
       generated.push(...dayItems);
@@ -510,45 +511,45 @@ export default function TravelItineraryPage() {
   }, [attractionsSource, restaurantsSource, totalDays]);
 
   // ---------- Save / Export itinerary ----------
-  const handleDownloadJson = () => {
-    const payload = {
-      place: queryPlace || null,
-      startDate: startDate || null,
-      endDate: endDate || null,
-      totalDays,
-      guests,
-      items: itineraryItems,
-    };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    const fileNameBase = `${(queryPlace || "itinerary").toString().replace(/\s+/g, "-")}`;
-    a.href = url;
-    a.download = `${fileNameBase}-${startDate || ""}-${endDate || ""}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  };
+  // const handleDownloadJson = () => {
+  //   const payload = {
+  //     place: queryPlace || null,
+  //     startDate: startDate || null,
+  //     endDate: endDate || null,
+  //     totalDays,
+  //     guests,
+  //     items: itineraryItems,
+  //   };
+  //   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  //   const url = URL.createObjectURL(blob);
+  //   const a = document.createElement("a");
+  //   const fileNameBase = `${(queryPlace || "itinerary").toString().replace(/\s+/g, "-")}`;
+  //   a.href = url;
+  //   a.download = `${fileNameBase}-${startDate || ""}-${endDate || ""}.json`;
+  //   document.body.appendChild(a);
+  //   a.click();
+  //   a.remove();
+  //   URL.revokeObjectURL(url);
+  // };
 
-  const handleSaveToLocal = () => {
-    try {
-      const key = `itinerary:${queryPlace || "default"}`;
-      const payload = {
-        place: queryPlace || null,
-        startDate: startDate || null,
-        endDate: endDate || null,
-        totalDays,
-        guests,
-        items: itineraryItems,
-        savedAt: new Date().toISOString(),
-      };
-      localStorage.setItem(key, JSON.stringify(payload));
-      alert("Itinerary saved locally on this device.");
-    } catch (e) {
-      alert("Failed to save itinerary");
-    }
-  };
+  // const handleSaveToLocal = () => {
+  //   try {
+  //     const key = `itinerary:${queryPlace || "default"}`;
+  //     const payload = {
+  //       place: queryPlace || null,
+  //       startDate: startDate || null,
+  //       endDate: endDate || null,
+  //       totalDays,
+  //       guests,
+  //       items: itineraryItems,
+  //       savedAt: new Date().toISOString(),
+  //     };
+  //     localStorage.setItem(key, JSON.stringify(payload));
+  //     alert("Itinerary saved locally on this device.");
+  //   } catch (e) {
+  //     alert("Failed to save itinerary");
+  //   }
+  // };
 
   const handleSaveToAccount = async () => {
     const token = localStorage.getItem("token");
@@ -698,7 +699,7 @@ export default function TravelItineraryPage() {
           />
           <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
             <div className="text-white max-w-2xl">
-              <h1 className="text-5xl font-bold mb-4 text-balance">{queryPlace ? `${queryPlace} Discoveries` : "Tokyo Cherry Blossom Journey"}</h1>
+              <h1 className="text-5xl font-bold mb-4 text-balance">{queryPlace?.toUpperCase() ? `${queryPlace?.toUpperCase()} Discoveries` : "Tokyo Cherry Blossom Journey"}</h1>
               <p className="text-xl mb-6 text-pink-50 text-pretty">
                 {startDate && endDate ? (
                   <span>
@@ -721,10 +722,10 @@ export default function TravelItineraryPage() {
                   <Users className="h-4 w-4" />
                   <span>{guests} Traveler{guests > 1 ? 's' : ''}</span>
                 </div>
-                <div className="flex items-center gap-2">
+                {/* <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4" />
-                  <span>$3,200 Total</span>
-                </div>
+                  
+                </div> */}
               </div>
             </div>
           </div>
@@ -1042,12 +1043,12 @@ export default function TravelItineraryPage() {
                   <Button onClick={handlePrintPdf} className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 flex items-center gap-2">
                     <Download className="h-4 w-4" /> Download PDF
                   </Button>
-                  <Button onClick={handleDownloadJson} className="bg-pink-100 text-pink-700 px-4 py-2 rounded hover:bg-pink-200 flex items-center gap-2">
+                  {/* <Button onClick={handleDownloadJson} className="bg-pink-100 text-pink-700 px-4 py-2 rounded hover:bg-pink-200 flex items-center gap-2">
                     <Download className="h-4 w-4" /> Download JSON
-                  </Button>
-                  <Button onClick={handleSaveToLocal} className="bg-pink-100 text-pink-700 px-4 py-2 rounded hover:bg-pink-200 flex items-center gap-2">
+                  </Button> */}
+                  {/* <Button onClick={handleSaveToLocal} className="bg-pink-100 text-pink-700 px-4 py-2 rounded hover:bg-pink-200 flex items-center gap-2">
                     <Share2 className="h-4 w-4" /> Save Locally
-                  </Button>
+                  </Button> */}
                   <Button onClick={handleSaveToAccount} className="bg-rose-500 text-white px-4 py-2 rounded hover:bg-rose-600 flex items-center gap-2">
                     <Save className="h-4 w-4" /> Save to Account
                   </Button>

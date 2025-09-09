@@ -1,5 +1,5 @@
 "use client"
-import { User, Settings, BookmarkCheck, LogOut } from "lucide-react"
+import { User, Settings, BookmarkCheck, LogOut, Compass } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import {
   DropdownMenu,
@@ -21,14 +21,20 @@ export function SearchNavbar() {
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-white backdrop-blur supports-[backdrop-filter]:bg-white/90">
       <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-4">
-        <div className="flex items-center space-x-2">
+        {/* <div className="flex items-center space-x-2">
           <div className="flex items-center space-x-2">
             <div className="h-8 w-8 rounded-lg bg-orange-600 flex items-center justify-center shadow-md">
               <span className="text-white font-bold text-sm">WW</span>
             </div>
             <span className="font-bold text-xl text-foreground">Wonder Weave</span>
           </div>
-        </div>
+        </div> */}
+        <a href="#" className="flex items-center gap-2">
+          <Compass className="h-6 w-6 text-orange-500" />
+          <span className="text-xl font-extrabold tracking-tight">
+            Wonder Weave
+          </span>
+        </a>
 
         <div className="flex items-center space-x-4">
             <DropdownMenu>

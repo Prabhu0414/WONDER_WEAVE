@@ -2,14 +2,21 @@
 
 import { SearchNavbar } from "../Components/Serach-Navbar"
 import { SearchSection } from "../Components/SearchSection"
-import { DestinationCard } from "../Components/Destination-Card"
+import { SearchDestinationCard } from "../Components/Destination-Card"
+
+import bali from "../assets/bali.jpg";
+import patagonia from "../assets/Patagonia.jpg";
+import japan from "../assets/japan.png";
+import Morocco from "../assets/Morocco.jpg";
+import iceland from "../assets/iceland.jpg";
+import santorini from "../assets/Santorini.png";
 
 const popularDestinations = [
   {
     id: "1",
     name: "Santorini",
     country: "Greece",
-    image: "/santorini-white-blue.png",
+    image: `${santorini}`,
     rating: 4.8,
     duration: "5-7 days",
     price: "From $1,200",
@@ -19,7 +26,7 @@ const popularDestinations = [
     id: "2",
     name: "Kyoto",
     country: "Japan",
-    image: "/kyoto-temple-cherry-blossoms.png",
+    image: `${japan}`,
     rating: 4.9,
     duration: "4-6 days",
     price: "From $980",
@@ -29,7 +36,7 @@ const popularDestinations = [
     id: "3",
     name: "Bali",
     country: "Indonesia",
-    image: "/bali-indonesia-rice-terraces-tropical.jpg",
+    image: `${bali}`,
     rating: 4.7,
     duration: "7-10 days",
     price: "From $850",
@@ -39,7 +46,7 @@ const popularDestinations = [
     id: "4",
     name: "Patagonia",
     country: "Chile & Argentina",
-    image: "/patagonia-mountains-glaciers-hiking.jpg",
+    image: `${patagonia}`,
     rating: 4.6,
     duration: "10-14 days",
     price: "From $2,100",
@@ -49,7 +56,7 @@ const popularDestinations = [
     id: "5",
     name: "Marrakech",
     country: "Morocco",
-    image: "/marrakech-morocco-medina-markets-colorful.jpg",
+    image: `${Morocco}`,
     rating: 4.5,
     duration: "4-6 days",
     price: "From $650",
@@ -59,7 +66,7 @@ const popularDestinations = [
     id: "6",
     name: "Reykjavik",
     country: "Iceland",
-    image: "/iceland-northern-lights-geysers-waterfalls.jpg",
+    image: `${iceland}`,
     rating: 4.8,
     duration: "6-8 days",
     price: "From $1,400",
@@ -91,7 +98,7 @@ export default function SearchPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {popularDestinations.map((destination) => (
-                <DestinationCard key={destination.id} {...destination} onClick={handleDestinationClick} />
+                <SearchDestinationCard key={destination.id} {...destination} onClick={handleDestinationClick} />
               ))}
             </div>
           </div>
