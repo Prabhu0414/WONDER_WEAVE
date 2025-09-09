@@ -42,6 +42,7 @@ export function Navbar () {
             ))}
           </nav>
 
+          
           <div className="flex items-center gap-3">
            <Link to="/AuthPage"> <Button className="hidden md:inline-flex bg-gradient-to-r from-orange-500 via-pink-500 to-rose-500 text-white shadow-lg">
               Sign Up
