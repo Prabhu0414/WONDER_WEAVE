@@ -1,10 +1,39 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthBtn } from "./AuthBtn";
+import { SignupUser } from "../api";
 
 interface SignupProps {
   onSwitchToLogin: () => void;
 }
 
+
 export default function Signup({ onSwitchToLogin }: SignupProps) {
+
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  ;
+
+  const navigate = useNavigate();
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const data = await SignupUser({username, email, password });
+      console.log("Signup successful:", data);
+      localStorage.setItem("token", data.token);
+      navigate("/searchPage");
+    } catch (error) {
+      console.error("Signup failed:", error);
+      alert("Signup failed. Please try again.");
+    }
+  };
+
+
+
+
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-pink-200 via-pink-100 to-white">
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
@@ -15,30 +44,31 @@ export default function Signup({ onSwitchToLogin }: SignupProps) {
           Adventure begins with a single sign up.
         </p>
 
-        <form className="space-y-4">
+        <form onSubmit={handleSignup} className="space-y-4">
           <input
             type="text"
             placeholder="Name"
             className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-pink-400"
+            onChange={(e) => setUsername(e.target.value)}
           />
           <input
             type="email"
             placeholder="Email"
             className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-pink-400"
+            onChange={(e) => setEmail(e.target.value)}
           />
           <input
             type="password"
             placeholder="Password"
             className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-pink-400"
+            onChange={(e) => setPassword(e.target.value)}
           />
           <input
             type="password"
             placeholder="Confirm Password"
             className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-pink-400"
           />
-
-
-          <AuthBtn text="Sign Up" />
+          <button type="submit"><AuthBtn text="Sign Up" /></button>
         </form>
 
         <div className="flex items-center my-4">

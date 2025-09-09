@@ -1,10 +1,30 @@
+import { useState } from "react";
 import { AuthBtn } from "./AuthBtn";
+import { useNavigate } from "react-router-dom";
+import { LoginUser, getErrorMessage } from "../api";
 
 interface LoginProps {
   onSwitchToSignUp: () => void;
 }
 
 export function Login({ onSwitchToSignUp }: LoginProps) {
+
+  const [email, setEmail] =  useState("");
+  const [password, setPassword] =  useState("");
+  const navigate = useNavigate();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const data = await LoginUser({ email, password });
+      localStorage.setItem("token", data.token);
+      navigate("/SearchPage"); // Redirect to home page after login
+    } catch (error) {
+      console.error("Login failed:", getErrorMessage(error));
+      alert("Login failed: " + getErrorMessage(error));
+    }
+  }
+
    return (
        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-pink-200 via-pink-100 to-white">
          <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
@@ -15,19 +35,21 @@ export function Login({ onSwitchToSignUp }: LoginProps) {
              Adventure begins with a single sign up.
            </p>
    
-           <form className="space-y-4">
+           <form onSubmit={handleLogin} className="space-y-4">
 
              <input
                type="email"
                placeholder="Email"
                className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-pink-400"
+               onChange={(e) => setEmail(e.target.value)}
              />
              <input
                type="password"
                placeholder="Password"
                className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-pink-400"
+                onChange={(e) => setPassword(e.target.value)}
              />
-             <AuthBtn text= "Login" />
+             <button type="submit"><AuthBtn text= "Login"></AuthBtn></button>
            </form>
    
            <div className="flex items-center my-4">
