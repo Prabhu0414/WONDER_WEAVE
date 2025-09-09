@@ -23,7 +23,7 @@ export default function Signup({ onSwitchToLogin }: SignupProps) {
       const data = await SignupUser({username, email, password });
       console.log("Signup successful:", data);
       localStorage.setItem("token", data.token);
-      navigate("/searchPage");
+      navigate("/SearchPage", { replace: true, state: { fromAuth: true } });
     } catch (error) {
       console.error("Signup failed:", error);
       alert("Signup failed. Please try again.");

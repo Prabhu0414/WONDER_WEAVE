@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Compass, X, Menu } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "./Button";
@@ -8,12 +8,30 @@ import { Button } from "./Button";
 export function Navbar() {
 
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(Boolean(localStorage.getItem("token")));
+  const navigate = useNavigate();
 
   useEffect(() => {
     const onScroll = () => setMobileOpen(false);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "token") {
+        setIsAuthenticated(Boolean(e.newValue));
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsAuthenticated(false);
+    navigate("/", { replace: true });
+  };
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -44,9 +62,24 @@ export function Navbar() {
 
 
         <div className="flex items-center gap-3">
-          <Link to="/AuthPage"> <Button className="hidden md:inline-flex bg-gradient-to-r from-orange-500 via-pink-500 to-rose-500 text-white shadow-lg">
-            Sign Up
-          </Button></Link>
+          {!isAuthenticated ? (
+            <Link to="/AuthPage">
+              <Button className="hidden md:inline-flex bg-gradient-to-r from-orange-500 via-pink-500 to-rose-500 text-white shadow-lg">
+                Sign Up
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link to="/SearchPage">
+                <Button className="hidden md:inline-flex bg-gradient-to-r from-orange-500 via-pink-500 to-rose-500 text-white shadow-lg">
+                  Search
+                </Button>
+              </Link>
+              <Button variant="outline" onClick={handleLogout} className="hidden md:inline-flex">
+                Logout
+              </Button>
+            </>
+          )}
           <ThemeToggle />
           <Button
             variant="outline"
@@ -81,11 +114,24 @@ export function Navbar() {
               </a>
             )
           )}
-          <Link to="/AuthPage">
-            <Button className="w-full bg-gradient-to-r from-orange-500 via-pink-500 to-rose-500 text-white shadow-lg">
-              Sign Up
-            </Button>
-          </Link>
+          {!isAuthenticated ? (
+            <Link to="/AuthPage">
+              <Button className="w-full bg-gradient-to-r from-orange-500 via-pink-500 to-rose-500 text-white shadow-lg">
+                Sign Up
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link to="/SearchPage">
+                <Button className="w-full bg-gradient-to-r from-orange-500 via-pink-500 to-rose-500 text-white shadow-lg">
+                  Search
+                </Button>
+              </Link>
+              <Button variant="outline" onClick={handleLogout} className="w-full">
+                Logout
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </header>

@@ -18,7 +18,7 @@ export function Login({ onSwitchToSignUp }: LoginProps) {
     try {
       const data = await LoginUser({ email, password });
       localStorage.setItem("token", data.token);
-      navigate("/SearchPage"); // Redirect to home page after login
+      navigate("/SearchPage", { replace: true, state: { fromAuth: true } });
     } catch (error) {
       console.error("Login failed:", getErrorMessage(error));
       alert("Login failed: " + getErrorMessage(error));

@@ -1,5 +1,6 @@
 "use client"
 import { User, Settings, BookmarkCheck, LogOut } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +11,13 @@ import {
 import Avatar from "./ui/avatar"
 
 export function SearchNavbar() {
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    localStorage.removeItem("token")
+    navigate("/", { replace: true })
+  }
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-white backdrop-blur supports-[backdrop-filter]:bg-white/90">
       <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-4">
@@ -48,7 +56,7 @@ export function SearchNavbar() {
                   <span>Saved Itinerary</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer hover:bg-destructive/10 text-destructive transition-colors">
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer hover:bg-destructive/10 text-destructive transition-colors">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Logout</span>
                 </DropdownMenuItem>
