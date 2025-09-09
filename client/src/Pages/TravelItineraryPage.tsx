@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useMemo, useState, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ItemCard } from "../Components/ItemCard";
 import { ItineraryCard } from "../Components/ItineraryCard";
 import { Star, Plane, Hotel, UtensilsCrossed, MapPin, Clock, X, Heart, Save, Calendar, Users, DollarSign, CheckCircle, Coffee, Plus, Download, Share2 } from "lucide-react";
+import { saveItinerary, getErrorMessage } from "../api";
 
 // Dummy replacements for shadcn/ui components
 const Button = (props: any) => <button {...props} />;
@@ -15,8 +17,17 @@ const Badge = (props: any) => <span {...props} className={`inline-block rounded 
 const Input = (props: any) => <input {...props} className={`border rounded px-2 py-1 ${props.className || ''}`} />;
 const Select = (props: any) => <select {...props} className={`border rounded px-2 py-1 ${props.className || ''}`}>{props.children}</select>;
 const SelectItem = (props: any) => <option {...props}>{props.children}</option>;
-const Dialog = (props: any) => <div {...props}>{props.children}</div>;
-const DialogContent = (props: any) => <div {...props}>{props.children}</div>;
+const Dialog = (props: any) => (
+  <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
+    <div className="relative z-10 w-full max-w-2xl mx-4">
+      {props.children}
+    </div>
+  </div>
+);
+const DialogContent = (props: any) => (
+  <div {...props} className={`bg-white rounded-lg shadow-xl ${props.className || ''}`}>{props.children}</div>
+);
 const DialogHeader = (props: any) => <div {...props}>{props.children}</div>;
 const DialogTitle = (props: any) => <div {...props}>{props.children}</div>;
 const DialogDescription = (props: any) => <div {...props}>{props.children}</div>;
@@ -234,34 +245,30 @@ const attractionResults: ItineraryItem[] = [
   },
 ];
 
-const initialItinerary: ItineraryItem[] = [
-  {
-    id: "3",
-    type: "restaurant",
-    title: "Sukiyabashi Jiro",
-    description: "World-famous sushi restaurant",
-    price: "$300",
-    rating: 4.9,
-    day: 1,
-    time: "7:00 PM",
-    duration: "2 hours",
-    image: "/sushi-restaurant-japan.jpg",
-  },
-  {
-    id: "4",
-    type: "attraction",
-    title: "Senso-ji Temple",
-    description: "Ancient Buddhist temple in Asakusa",
-    rating: 4.7,
-    day: 1,
-    time: "10:00 AM",
-    duration: "2 hours",
-    image: "/senso-ji-temple-tokyo.jpg",
-  },
-];
+const initialItinerary: ItineraryItem[] = [];
 
 
 export default function TravelItineraryPage() {
+  const location = useLocation() as any;
+  const navigate = useNavigate();
+  const discovery = location?.state?.discovery as
+    | { center: { lat: number; lon: number }; hotels: any[]; restaurants: any[]; places: any[] }
+    | undefined;
+  const queryPlace = location?.state?.query as string | undefined;
+  const flights = location?.state?.flights as any | undefined;
+  const fromCity = location?.state?.fromCity as string | undefined;
+  const startDate = location?.state?.startDate as string | undefined;
+  const endDate = location?.state?.endDate as string | undefined;
+  const guests = (location?.state?.guests as number | undefined) ?? 1;
+
+  const totalDays = useMemo(() => {
+    if (!startDate || !endDate) return 7;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffMs = end.getTime() - start.getTime();
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1;
+    return Math.max(1, Math.min(30, days || 1));
+  }, [startDate, endDate]);
   // --- All state and logic from test.tsx ---
   // Copied from test.tsx TravelItinerary function
   const [selectedDay, setSelectedDay] = useState(1);
@@ -276,6 +283,7 @@ export default function TravelItineraryPage() {
   const [selectedHotel, setSelectedHotel] = useState<ItineraryItem | null>(null);
   const dragCounter = useRef(0);
   const [showMoreRestaurants, setShowMoreRestaurants] = useState(false);
+  const [showMoreHotels, setShowMoreHotels] = useState(false);
   const [showMoreAttractions, setShowMoreAttractions] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showItemSelector, setShowItemSelector] = useState(false);
@@ -343,7 +351,57 @@ export default function TravelItineraryPage() {
     }
   };
 
-  const filteredRestaurants = restaurantResults.filter((item) => {
+  // Map discovery data to UI cards (define before using in sources)
+  const discoveredRestaurants = useMemo<ItineraryItem[]>(() => {
+    if (!discovery?.restaurants) return [];
+    return discovery.restaurants.slice(0, 12).map((r, idx) => ({
+      id: `restaurant-${r.id ?? idx}`,
+      type: "restaurant",
+      title: r.name || r.city || "Restaurant",
+      description: [r.street, r.city, r.country].filter(Boolean).join(", ") || "",
+      price: undefined,
+      rating: undefined,
+      image: "/sushi-restaurant-japan.jpg",
+      category: "Local",
+      cuisine: undefined,
+    }));
+  }, [discovery]);
+
+  const discoveredAttractions = useMemo<ItineraryItem[]>(() => {
+    if (!discovery?.places) return [];
+    return discovery.places.slice(0, 12).map((p, idx) => ({
+      id: `attraction-${p.id ?? idx}`,
+      type: "attraction",
+      title: p.name || p.city || "Attraction",
+      description: [p.street, p.city, p.country].filter(Boolean).join(", ") || "",
+      price: undefined,
+      rating: undefined,
+      duration: undefined,
+      image: "/senso-ji-temple-tokyo.jpg",
+      category: (p.categories && p.categories[0]) || "Attraction",
+      attractionCategory: (p.categories && p.categories[0]) || "attraction",
+    }));
+  }, [discovery]);
+
+  const discoveredHotels = useMemo<ItineraryItem[]>(() => {
+    if (!discovery?.hotels) return [];
+    return discovery.hotels.slice(0, 12).map((h, idx) => ({
+      id: `hotel-${h.id ?? idx}`,
+      type: "hotel",
+      title: h.name || h.city || "Hotel",
+      description: [h.street, h.city, h.country].filter(Boolean).join(", ") || "",
+      price: undefined,
+      rating: undefined,
+      image: "/luxury-hotel-tokyo-night.jpg",
+      category: "Hotel",
+    }));
+  }, [discovery]);
+
+  const restaurantsSource = discoveredRestaurants.length ? discoveredRestaurants : restaurantResults;
+  const attractionsSource = discoveredAttractions.length ? discoveredAttractions : attractionResults;
+  const hotelsSource = discoveredHotels.length ? discoveredHotels : hotelResults;
+
+  const filteredRestaurants = restaurantsSource.filter((item) => {
     const matchesSearch =
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -351,7 +409,7 @@ export default function TravelItineraryPage() {
     return matchesSearch && matchesCuisine;
   });
 
-  const filteredAttractions = attractionResults.filter((item) => {
+  const filteredAttractions = attractionsSource.filter((item) => {
     const matchesSearch =
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -391,6 +449,11 @@ export default function TravelItineraryPage() {
   const mockRestaurants = restaurantResults;
   const mockAttractions = attractionResults;
 
+  // Map discovery data to UI cards
+  
+
+  
+
   const selectorFilteredItems = [...mockRestaurants, ...mockAttractions].filter((item) => {
     const matchesSearch =
       item.title.toLowerCase().includes(selectorSearchQuery.toLowerCase()) ||
@@ -401,6 +464,225 @@ export default function TravelItineraryPage() {
 
     return matchesSearch && matchesCuisine && matchesAttractionCategory;
   });
+
+  // ---------- Auto-generate itinerary from discovered places and restaurants ----------
+  React.useEffect(() => {
+    if (itineraryItems.length > 0) return;
+    const maxPerDay = 5;
+    const generated: ItineraryItem[] = [];
+
+    const attractions = attractionsSource;
+    const restaurants = restaurantsSource;
+    if (attractions.length === 0 && restaurants.length === 0) return;
+
+    let attractionIdx = 0;
+    let restaurantIdx = 0;
+
+    for (let day = 1; day <= totalDays; day++) {
+      const dayItems: ItineraryItem[] = [];
+      // Pattern: 2 attractions, 1 restaurant, then optionally 1 attraction, 1 restaurant (max 5)
+      const addAttraction = (time: string) => {
+        if (attractionIdx < attractions.length && dayItems.length < maxPerDay) {
+          const a = attractions[attractionIdx++];
+          dayItems.push({ ...a, id: `${a.id}-d${day}-${dayItems.length}`, day, time });
+        }
+      };
+      const addRestaurant = (time: string) => {
+        if (restaurantIdx < restaurants.length && dayItems.length < maxPerDay) {
+          const r = restaurants[restaurantIdx++];
+          dayItems.push({ ...r, id: `${r.id}-d${day}-${dayItems.length}`, day, time });
+        }
+      };
+
+      addAttraction("10:00 AM");
+      addAttraction("12:00 PM");
+      addRestaurant("1:30 PM");
+      addAttraction("3:30 PM");
+      addRestaurant("7:00 PM");
+
+      generated.push(...dayItems);
+      if (attractionIdx >= attractions.length && restaurantIdx >= restaurants.length) break;
+    }
+
+    if (generated.length) {
+      setItineraryItems(generated);
+    }
+  }, [attractionsSource, restaurantsSource, totalDays]);
+
+  // ---------- Save / Export itinerary ----------
+  const handleDownloadJson = () => {
+    const payload = {
+      place: queryPlace || null,
+      startDate: startDate || null,
+      endDate: endDate || null,
+      totalDays,
+      guests,
+      items: itineraryItems,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const fileNameBase = `${(queryPlace || "itinerary").toString().replace(/\s+/g, "-")}`;
+    a.href = url;
+    a.download = `${fileNameBase}-${startDate || ""}-${endDate || ""}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleSaveToLocal = () => {
+    try {
+      const key = `itinerary:${queryPlace || "default"}`;
+      const payload = {
+        place: queryPlace || null,
+        startDate: startDate || null,
+        endDate: endDate || null,
+        totalDays,
+        guests,
+        items: itineraryItems,
+        savedAt: new Date().toISOString(),
+      };
+      localStorage.setItem(key, JSON.stringify(payload));
+      alert("Itinerary saved locally on this device.");
+    } catch (e) {
+      alert("Failed to save itinerary");
+    }
+  };
+
+  const handleSaveToAccount = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please log in to save itineraries to your account.");
+      navigate('/AuthPage');
+      return;
+    }
+    try {
+      const payload = {
+        place: queryPlace || null,
+        startDate: startDate || null,
+        endDate: endDate || null,
+        totalDays,
+        guests,
+        items: itineraryItems,
+      };
+      await saveItinerary(payload);
+      alert("Itinerary saved to your account.");
+    } catch (e: any) {
+      alert(`Failed to save to account: ${getErrorMessage(e)}`);
+    }
+  };
+
+  const handlePrintPdf = () => {
+    const title = queryPlace ? `${queryPlace} Itinerary` : "Travel Itinerary";
+    const printWindow = window.open("", "_blank", "noopener,noreferrer,width=1024,height=768");
+    if (!printWindow) return alert("Popup blocked. Please allow popups to download PDF.");
+
+    const dateLine = startDate && endDate
+      ? `${new Date(startDate).toLocaleDateString()} – ${new Date(endDate).toLocaleDateString()} (${totalDays} days)`
+      : `${totalDays} days`;
+
+    const guestLine = `${guests} Traveler${guests > 1 ? 's' : ''}`;
+
+    const byDay = new Map<number, typeof itineraryItems>();
+    itineraryItems.forEach((it) => {
+      if (!it.day) return;
+      const arr = byDay.get(it.day) || [] as typeof itineraryItems;
+      (arr as any).push(it);
+      byDay.set(it.day, arr);
+    });
+
+    const daySections = Array.from({ length: totalDays }, (_, i) => i + 1)
+      .map((day) => {
+        const items = (byDay.get(day) || []).map((it) => `
+          <div class="card">
+            <div class="card-left ${it.type}"></div>
+            <div class="card-body">
+              <div class="card-title-row">
+                <div class="badge ${it.type}">${it.type}</div>
+                <h4 class="card-title">${it.title || "Untitled"}</h4>
+                ${it.time ? `<span class="chip">${it.time}</span>` : ""}
+                ${it.duration ? `<span class="chip subtle">${it.duration}</span>` : ""}
+              </div>
+              <div class="card-desc">${it.description || ""}</div>
+            </div>
+          </div>
+        `).join("");
+        return `
+          <section class="day">
+            <h3 class="day-title">Day ${day}</h3>
+            ${items || `<div class="empty">No items planned.</div>`}
+          </section>
+        `;
+      }).join("");
+
+    const html = `
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${title}</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #111827;
+      --muted: #6b7280;
+      --primary: #ec4899; /* pink-500 */
+      --primary-600: #db2777;
+      --accent: #f97316; /* orange-500 */
+      --ring: rgba(236,72,153,0.15);
+      --border: #fbcfe8; /* pink-200 */
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; color: var(--fg); background: linear-gradient(135deg, #fff7ed 0%, #fff1f2 100%); }
+    .container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+    .hero {
+      position: relative; border-radius: 16px; overflow: hidden; padding: 28px; margin-bottom: 20px;
+      background: linear-gradient(135deg, rgba(249,168,212,0.25), rgba(253,186,116,0.25));
+      border: 1px solid var(--border);
+    }
+    .title { margin: 0 0 6px; font-size: 28px; font-weight: 800; background: linear-gradient(90deg, var(--accent), var(--primary)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .subtitle { margin: 6px 0 12px; color: var(--muted); font-size: 14px; }
+    .meta { display: flex; gap: 16px; color: var(--fg); font-size: 13px; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-weight: 600; font-size: 11px; color: #fff; background: var(--primary); }
+    .badge.hotel { background: #f43f5e; }
+    .badge.restaurant { background: #a21caf; }
+    .badge.attraction { background: #db2777; }
+    .chip { display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); font-size: 11px; color: var(--fg); }
+    .chip.subtle { color: var(--muted); }
+    .day { margin-top: 18px; }
+    .day-title { margin: 0 0 10px; font-size: 18px; color: var(--fg); }
+    .card { display: flex; border: 1px solid var(--border); border-radius: 12px; background: #fff; box-shadow: 0 6px 18px rgba(236,72,153,0.08); margin-bottom: 10px; }
+    .card-left { width: 6px; border-top-left-radius: 12px; border-bottom-left-radius: 12px; background: var(--primary); }
+    .card-left.hotel { background: #f43f5e; }
+    .card-left.restaurant { background: #a21caf; }
+    .card-left.attraction { background: #db2777; }
+    .card-body { padding: 12px 16px; flex: 1; }
+    .card-title-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .card-title { margin: 0; font-size: 14px; font-weight: 700; color: var(--fg); }
+    .card-desc { font-size: 12px; color: var(--muted); }
+    .empty { padding: 10px; border: 1px dashed var(--border); color: var(--muted); border-radius: 10px; background: #fff; }
+    @media print { body { background: #fff; } .hero { box-shadow: none; } }
+  </style>
+  <script>window.onload = () => { setTimeout(() => window.print(), 100); };</script>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <h1 class="title">${title}</h1>
+      <div class="subtitle">${dateLine} • ${guestLine}</div>
+      <div class="meta">Center: ${discovery?.center ? `${discovery.center.lat.toFixed(3)}, ${discovery.center.lon.toFixed(3)}` : "N/A"}</div>
+    </div>
+    ${daySections}
+  </div>
+</body>
+</html>`;
+
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+  };
 
   // --- Full JSX from test.tsx ---
   return (
@@ -416,18 +698,28 @@ export default function TravelItineraryPage() {
           />
           <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
             <div className="text-white max-w-2xl">
-              <h1 className="text-5xl font-bold mb-4 text-balance">Tokyo Cherry Blossom Journey</h1>
+              <h1 className="text-5xl font-bold mb-4 text-balance">{queryPlace ? `${queryPlace} Discoveries` : "Tokyo Cherry Blossom Journey"}</h1>
               <p className="text-xl mb-6 text-pink-50 text-pretty">
-                Your personalized 7-day adventure through Japan's enchanting capital
+                {startDate && endDate ? (
+                  <span>
+                    {new Date(startDate).toLocaleDateString()} – {new Date(endDate).toLocaleDateString()} • {guests} Traveler{guests > 1 ? 's' : ''}
+                  </span>
+                ) : (
+                  <span>Your personalized {totalDays}-day adventure</span>
+                )}
               </p>
               <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  <span>March 15-22, 2024</span>
-                </div>
+                {startDate && endDate && (
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    <span>
+                      {new Date(startDate).toLocaleDateString()} – {new Date(endDate).toLocaleDateString()} ({totalDays} days)
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4" />
-                  <span>2 Travelers</span>
+                  <span>{guests} Traveler{guests > 1 ? 's' : ''}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4" />
@@ -451,9 +743,11 @@ export default function TravelItineraryPage() {
               </CardHeader>
               <CardContent className="p-4">
                 <div className="space-y-3">
-                  {flightResults.map((flight) => (
+                  {(flights?.fligths?.length
+                    ? flights.fligths
+                    : []).map((flight: any, idx: number) => (
                     <div
-                      key={flight.id}
+                      key={flight.id ?? idx}
                       className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
                         selectedFlight?.id === flight.id
                           ? "border-pink-500 bg-pink-50"
@@ -463,13 +757,25 @@ export default function TravelItineraryPage() {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
-                          <h4 className="font-semibold text-pink-900">{flight.title}</h4>
-                          <p className="text-sm text-pink-700">{flight.description}</p>
+                          <h4 className="font-semibold text-pink-900">{flight.title ?? `${flight.airline ?? "Flight"} ${flight.flightNumber ?? ""}`}</h4>
+                          <p className="text-sm text-pink-700">
+                            {flight.description ?? `${flight.departure?.airport ?? fromCity ?? "Departure"} → ${flight.arrival?.airport ?? queryPlace ?? "Arrival"}`}
+                          </p>
                           <div className="flex items-center gap-4 mt-2">
-                            <span className="font-bold text-pink-600">{flight.price}</span>
+                            {flight.price ? (
+                              <span className="font-bold text-pink-600">{flight.price}</span>
+                            ) : (
+                              <span className="text-pink-700">{flight.flightDate ?? flight.departure?.scheduled ?? ""}</span>
+                            )}
                             <div className="flex items-center gap-1">
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <span className="text-sm text-pink-800 font-medium">{flight.rating}</span>
+                              {flight.rating ? (
+                                <>
+                                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                  <span className="text-sm text-pink-800 font-medium">{flight.rating}</span>
+                                </>
+                              ) : (
+                                <span className="text-sm text-pink-800 font-medium">{flight.status ?? ""}</span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -477,6 +783,11 @@ export default function TravelItineraryPage() {
                       </div>
                     </div>
                   ))}
+                  {(!flights || !flights.fligths || flights.fligths.length === 0) && (
+                    <div className="p-4 rounded-lg border-2 border-pink-200 bg-white text-pink-700">
+                      No direct flights available.
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -490,8 +801,17 @@ export default function TravelItineraryPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div />
+                  <Button
+                    className="text-pink-600 hover:underline text-sm"
+                    onClick={() => setShowMoreHotels((v) => !v)}
+                  >
+                    {showMoreHotels ? "Show Less" : "Show More"}
+                  </Button>
+                </div>
                 <div className="space-y-3">
-                  {hotelResults.map((hotel) => (
+                  {(showMoreHotels ? hotelsSource : hotelsSource.slice(0, 3)).map((hotel) => (
                     <div
                       key={hotel.id}
                       className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
@@ -691,7 +1011,7 @@ export default function TravelItineraryPage() {
 
           {/* Day Selector */}
           <div className="flex justify-center gap-2 mb-8">
-            {[1, 2, 3, 4, 5, 6, 7].map((day) => (
+            {Array.from({ length: totalDays }, (_, i) => i + 1).map((day) => (
               <Button
                 key={day}
                 className={`rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg border-2 transition-all duration-200 ${
@@ -719,11 +1039,17 @@ export default function TravelItineraryPage() {
                   Download or share your personalized Tokyo itinerary.
                 </DialogDescription>
                 <div className="flex gap-4">
-                  <Button className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 flex items-center gap-2">
+                  <Button onClick={handlePrintPdf} className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 flex items-center gap-2">
                     <Download className="h-4 w-4" /> Download PDF
                   </Button>
-                  <Button className="bg-pink-100 text-pink-700 px-4 py-2 rounded hover:bg-pink-200 flex items-center gap-2">
-                    <Share2 className="h-4 w-4" /> Share
+                  <Button onClick={handleDownloadJson} className="bg-pink-100 text-pink-700 px-4 py-2 rounded hover:bg-pink-200 flex items-center gap-2">
+                    <Download className="h-4 w-4" /> Download JSON
+                  </Button>
+                  <Button onClick={handleSaveToLocal} className="bg-pink-100 text-pink-700 px-4 py-2 rounded hover:bg-pink-200 flex items-center gap-2">
+                    <Share2 className="h-4 w-4" /> Save Locally
+                  </Button>
+                  <Button onClick={handleSaveToAccount} className="bg-rose-500 text-white px-4 py-2 rounded hover:bg-rose-600 flex items-center gap-2">
+                    <Save className="h-4 w-4" /> Save to Account
                   </Button>
                   <Button className="ml-auto" onClick={() => setShowSaveDialog(false)}>
                     <X className="h-5 w-5 text-pink-400" />

@@ -1,6 +1,6 @@
 import { Badge } from "./ui/badge";
 import { Star } from "lucide-react";
-import { TypeIcon } from "lucide-react";
+import { TypeIcon } from "./TypeColor.tsx";
 import { getTypeColor } from "./typeColor";
 
 interface ItineraryItem {

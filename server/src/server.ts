@@ -11,6 +11,7 @@ import authRoutes from "./routes/authRoutes";
 import airportRoutes from "./routes/airport.routes";
 import flightRoutes from "./routes/flight.routes";
 import placeRoutes from "./routes/placeRoute";
+import itineraryRoutes from "./routes/itinerary.routes";
 import { errorHandler } from "./middleware/errorHandler";
 
 connectDB();
@@ -26,6 +27,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/airports", airportRoutes);
 app.use("/api/flights", flightRoutes);
 app.use("/api/places", placeRoutes);
+app.use("/api/itineraries", itineraryRoutes);
 
 app.use(errorHandler);
 

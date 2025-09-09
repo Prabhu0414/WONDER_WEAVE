@@ -51,7 +51,7 @@ export function SearchNavbar() {
                   <Settings className="mr-2 h-4 w-4 text-orange-500" />
                   <span>Update Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer hover:bg-orange-50 transition-colors">
+                <DropdownMenuItem onClick={() => navigate('/saved')} className="cursor-pointer hover:bg-orange-50 transition-colors">
                   <BookmarkCheck className="mr-2 h-4 w-4 text-orange-500" />
                   <span>Saved Itinerary</span>
                 </DropdownMenuItem>

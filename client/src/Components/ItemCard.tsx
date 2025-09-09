@@ -1,7 +1,7 @@
 import React from "react";
 import { Badge } from "./ui/badge";
 import { Star } from "lucide-react";
-import { TypeIcon } from "lucide-react";
+import { TypeIcon } from "./TypeColor.tsx";
 import { getTypeColor } from "./typeColor";
 
 interface ItemCardProps {
@@ -40,7 +40,14 @@ export function ItemCard({ item, onDragStart, onDragEnd, dragged, children }: It
           </Badge>
         </div>
       </div>
-      <h4 className="font-semibold text-sm text-pink-900 mb-1">{item.title}</h4>
+      <div className="flex items-center gap-2 mb-1">
+        {(item.type === "restaurant" || item.type === "attraction") && (
+          <span className={`p-1 rounded-full text-white ${getTypeColor(item.type)}`}>
+            <TypeIcon type={item.type} className="h-3.5 w-3.5" />
+          </span>
+        )}
+        <h4 className="font-semibold text-sm text-pink-900">{item.title}</h4>
+      </div>
       <p className="text-xs text-pink-700 mb-2">{item.description}</p>
       <div className="flex items-center justify-between">
         {item.price && <span className="text-sm font-bold text-pink-600">{item.price}</span>}
