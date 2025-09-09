@@ -49,7 +49,7 @@ export function Login({ onSwitchToSignUp }: LoginProps) {
                className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-pink-400"
                 onChange={(e) => setPassword(e.target.value)}
              />
-             <button type="submit"><AuthBtn text= "Login"></AuthBtn></button>
+             <AuthBtn type="submit" text= "Login" />
            </form>
    
            <div className="flex items-center my-4">

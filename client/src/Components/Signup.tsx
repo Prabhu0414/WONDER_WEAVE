@@ -68,7 +68,7 @@ export default function Signup({ onSwitchToLogin }: SignupProps) {
             placeholder="Confirm Password"
             className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-pink-400"
           />
-          <button type="submit"><AuthBtn text="Sign Up" /></button>
+          <AuthBtn type="submit" text="Sign Up" />
         </form>
 
         <div className="flex items-center my-4">
