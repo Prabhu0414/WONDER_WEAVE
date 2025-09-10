@@ -8,13 +8,15 @@ export interface Destination {
   description: string;
   location: string;
   image: string;
+  queryPlace: string;
 }
 
 interface Props {
   destination: Destination;
+  onClick?: () => void;
 }
 
-export function DestinationCard({ destination }: Props) {
+export function DestinationCard({ destination, onClick }: Props) {
   const cardRef = useRef<HTMLDivElement | null>(null);
 
   const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -48,7 +50,8 @@ export function DestinationCard({ destination }: Props) {
         ref={cardRef}
         onMouseMove={handleMove}
         onMouseLeave={resetTilt}
-        className="group relative h-full overflow-hidden rounded-2xl border bg-white dark:bg-white border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:shadow-lg will-change-transform"
+        onClick={onClick}
+        className="group relative h-full cursor-pointer overflow-hidden rounded-2xl border bg-white dark:bg-white border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:shadow-lg will-change-transform"
       >
         {/* glow border */}
         <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-orange-400 via-pink-400 to-rose-400 opacity-0 blur-[6px] transition-opacity duration-300 group-hover:opacity-40" />
@@ -81,7 +84,7 @@ export function DestinationCard({ destination }: Props) {
               <Button
                 variant="outline"
                 size="sm"
-                className="bg-gradient-to-r from-orange-50 to-rose-50 text-gray-7000 dark:text-slate-500 border-orange-200 dark:border-slate-700 hover:bg-orange-100 dark:hover:bg-slate-800"
+                className="pointer-events-none bg-gradient-to-r from-orange-50 to-rose-50 text-gray-700 dark:text-slate-500 border-orange-200 dark:border-slate-700"
               >
                 View Details
               </Button>
