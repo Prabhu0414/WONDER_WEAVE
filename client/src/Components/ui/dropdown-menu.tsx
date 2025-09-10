@@ -35,7 +35,7 @@ export const DropdownMenuTrigger = forwardRef<HTMLDivElement, { asChild?: boolea
   ({ asChild, children, className = "" }, ref) => {
     const ctx = useContext(DropdownMenuContext);
     if (!ctx) throw new Error("DropdownMenuTrigger must be used within DropdownMenu");
-    const { open, setOpen } = ctx;
+    const { setOpen } = ctx;
     const handleClick = (e: ReactMouseEvent) => {
       e.stopPropagation();
       setOpen(!ctx.open);

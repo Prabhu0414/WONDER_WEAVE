@@ -4,7 +4,7 @@ import React, { useMemo, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ItemCard } from "../Components/ItemCard";
 import { ItineraryCard } from "../Components/ItineraryCard";
-import { Star, Plane, Hotel, UtensilsCrossed, MapPin, Clock, X, Heart, Save, Calendar, Users, DollarSign, CheckCircle, Coffee, Plus, Download, Share2 } from "lucide-react";
+import { Star, Plane, Hotel, UtensilsCrossed, MapPin, Clock, X, Heart, Save, Calendar, Users, CheckCircle, Coffee, Plus, Download } from "lucide-react";
 import { saveItinerary, getErrorMessage } from "../api";
 
 // Dummy replacements for shadcn/ui components

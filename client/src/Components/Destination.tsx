@@ -8,7 +8,7 @@ import { useState } from "react";
 export function Destination () {
 
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
+  const [, setIsLoading] = useState(false);
 
   const handleCardClick = async (queryPlace: string) => {
     if(!queryPlace.trim()) return

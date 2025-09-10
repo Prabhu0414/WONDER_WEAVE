@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { listItineraries, type ItineraryDoc } from "../api";
 import { Calendar, Users, MapPin } from "lucide-react";
