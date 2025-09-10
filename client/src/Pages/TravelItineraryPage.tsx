@@ -55,28 +55,28 @@ interface ItineraryItem {
   attractionCategory?: string;
 }
 
-const flightResults: ItineraryItem[] = [
-  {
-    id: "flight-1",
-    type: "flight",
-    title: "JAL Direct Flight",
-    description: "Japan Airlines • 13h 45m • Premium Economy",
-    price: "$1,450",
-    rating: 4.7,
-    image: "/airplane-sky-clouds.jpg",
-    category: "International",
-  },
-  {
-    id: "flight-2",
-    type: "flight",
-    title: "ANA Connecting Flight",
-    description: "All Nippon Airways • 16h 20m • 1 stop",
-    price: "$980",
-    rating: 4.5,
-    image: "/airplane-sky-clouds.jpg",
-    category: "Budget",
-  },
-];
+// const flightResults: ItineraryItem[] = [
+//   {
+//     id: "flight-1",
+//     type: "flight",
+//     title: "JAL Direct Flight",
+//     description: "Japan Airlines • 13h 45m • Premium Economy",
+//     price: "$1,450",
+//     rating: 4.7,
+//     image: "/airplane-sky-clouds.jpg",
+//     category: "International",
+//   },
+//   {
+//     id: "flight-2",
+//     type: "flight",
+//     title: "ANA Connecting Flight",
+//     description: "All Nippon Airways • 16h 20m • 1 stop",
+//     price: "$980",
+//     rating: 4.5,
+//     image: "/airplane-sky-clouds.jpg",
+//     category: "Budget",
+//   },
+// ];
 
 const hotelResults: ItineraryItem[] = [
   {
@@ -1037,7 +1037,7 @@ export default function TravelItineraryPage() {
                   </DialogTitle>
                 </DialogHeader>
                 <DialogDescription className="mb-4 text-pink-800">
-                  Download or share your personalized Tokyo itinerary.
+                  `Download or share your personalized `${queryPlace?.toUpperCase}` itinerary`.
                 </DialogDescription>
                 <div className="flex gap-4">
                   <Button onClick={handlePrintPdf} className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 flex items-center gap-2">
