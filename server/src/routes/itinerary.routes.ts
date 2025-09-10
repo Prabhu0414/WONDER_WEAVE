@@ -1,13 +1,13 @@
-import { Router } from "express";
+import { Router, Request } from "express";
 import Itinerary from "../models/itinerary";
-import { protect, AuthRequest } from "../middleware/auth";
+import { protect } from "../middleware/auth";
 
 const router = Router();
 
 // Create/save itinerary
-router.post("/", protect, async (req: AuthRequest, res) => {
+router.post("/", protect, async (req: Request, res) => {
   try {
-    const body = req.body || {};
+    const body = req.body || {} as any;
     const doc = await Itinerary.create({
       user: req.user!.id,
       place: body.place,
@@ -24,7 +24,7 @@ router.post("/", protect, async (req: AuthRequest, res) => {
 });
 
 // List itineraries for user
-router.get("/", protect, async (req: AuthRequest, res) => {
+router.get("/", protect, async (req: Request, res) => {
   try {
     const list = await Itinerary.find({ user: req.user!.id }).sort({ createdAt: -1 }).lean();
     res.json(list);
@@ -34,9 +34,9 @@ router.get("/", protect, async (req: AuthRequest, res) => {
 });
 
 // Get single itinerary
-router.get("/:id", protect, async (req: AuthRequest, res) => {
+router.get("/:id", protect, async (req: Request, res) => {
   try {
-    const doc = await Itinerary.findOne({ _id: req.params.id, user: req.user!.id }).lean();
+    const doc = await Itinerary.findOne({ _id: (req.params as any).id, user: req.user!.id }).lean();
     if (!doc) return res.status(404).json({ error: "Not found" });
     res.json(doc);
   } catch (e: any) {

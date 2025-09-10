@@ -1,4 +1,4 @@
-import mongoose, { Model } from "mongoose";
+import mongoose, { Model, Document } from "mongoose";
 import bcrypt from "bcrypt";
 
 export interface IUser extends Document {
@@ -52,7 +52,7 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.comparePassword = async function (
     candidatePassword: string 
 ): Promise<boolean> {
-    return bcrypt.compare(candidatePassword, this.password)
+    return bcrypt.compare(candidatePassword, (this as any).password)
 };
 
 const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
