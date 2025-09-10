@@ -1,9 +1,8 @@
 
 import axios from "axios";
 
-
-
-const API_URL =  "http://localhost:5000/api";
+// Use env when available, fallback to deployed backend
+const API_URL =  (import.meta as any).env?.VITE_API_URL || "https://wonder-weave-2.onrender.com/api";
 
 export interface AuthResponse {
     token: string;
